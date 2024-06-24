@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        minLength: 3,
-        maxLength: 20
-    }
+  username: {
+    type: String,
+    required: true,
+    minLength: 3,
+    maxLength: 20
+  }
 });
 
 userSchema.index({username: 1});
