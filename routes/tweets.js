@@ -82,13 +82,50 @@ router.put("/:id", async (req, res) => {
     const updatedTweet = await Tweet.findByIdAndUpdate(
       id,
       { content: newTweetContent },
-      { new: true },
+      { new: true }
     );
 
     console.log(updatedTweet);
     res.json(updatedTweet);
   } catch (error) {
     res.json({ msg: error.message });
+  }
+});
+/**
+ * Like a tweet
+ * @method PATCH /tweets/:id/like
+ */
+ router.patch("/:id/like", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const tweet = await Tweet.findById(id);
+    if (!tweet) {
+      return res.status(404).json({ msg: "Tweet not found" });
+    }
+    tweet.likes += 1;
+    await tweet.save();
+    res.json(tweet);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+});
+
+/**
+ * Retweet a tweet
+ * @method PATCH /tweets/:id/retweet
+ */
+router.patch("/:id/retweet", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const tweet = await Tweet.findById(id);
+    if (!tweet) {
+      return res.status(404).json({ msg: "Tweet not found" });
+    }
+    tweet.retweets += 1;
+    await tweet.save();
+    res.json(tweet);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
   }
 });
 
