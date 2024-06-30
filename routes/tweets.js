@@ -1,17 +1,37 @@
 import express from "express";
+import multer from "multer";
 import User from "../models/User.js";
 import Tweet from "../models/Tweet.js";
+import path from "path";
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const upload = multer({ storage });
 
 /**
  * Create a new Tweet
  * @method POST /tweets/
  * @description This route is used by the addTweet function in TweetList.jsx
  */
-router.post("/", async (req, res) => {
-  console.log(req.body);
-  const { username, newTweet } = req.body;
+router.post("/", upload.single('image'), async (req, res) => {
+  console.log("Request body:", req.body);
+  console.log("Request file:", req.file);
+
+  const { username, content } = req.body;
+  const imagePath = req.file ? req.file.path : null;
 
   // check if user exists
   const dbUser = await User.findOne({ username });
@@ -20,9 +40,10 @@ router.post("/", async (req, res) => {
     console.log(dbUser);
 
     const tweet = await Tweet.create({
-      content: newTweet,
+      content,
       user: dbUser._id,
       username: dbUser.username,
+      image: imagePath,
     });
     return res.json(tweet);
   } else {
@@ -30,9 +51,10 @@ router.post("/", async (req, res) => {
     console.log(newUser);
 
     const tweet = await Tweet.create({
-      content: newTweet,
+      content,
       user: newUser._id,
       username: newUser.username,
+      image: imagePath,
     });
 
     return res.json(tweet);
@@ -91,11 +113,12 @@ router.put("/:id", async (req, res) => {
     res.json({ msg: error.message });
   }
 });
+
 /**
  * Like a tweet
  * @method PATCH /tweets/:id/like
  */
- router.patch("/:id/like", async (req, res) => {
+router.patch("/:id/like", async (req, res) => {
   const { id } = req.params;
   try {
     const tweet = await Tweet.findById(id);
