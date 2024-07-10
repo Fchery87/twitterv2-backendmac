@@ -1,4 +1,3 @@
-// index.js
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -18,13 +17,8 @@ const PORT = process.env.PORT || 4000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const corsOptions = {
-  origin: ["https://silverbackchat.netlify.app/", "http://localhost:4000"], // Update with your Netlify app URL
-  optionsSuccessStatus: 200,
-};
-
 app.use(morgan('dev'));
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/tweets', tweetsRouter);
